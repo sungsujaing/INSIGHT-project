@@ -2,5 +2,9 @@ __pycache__
 Demo
 .DS_Store
 .ipynb_checkpoints
-VGG_VOC0712_SSD_512x512_iter_120000.h5
-ssd_keras
+
+KnowYourMove/VGG_VOC0712_SSD_512x512_iter_120000.h5
+KnowYourMove/*.avi
+
+KYM_app/VGG_VOC0712_SSD_512x512_iter_120000.h5
+KYM_app/*.avi
