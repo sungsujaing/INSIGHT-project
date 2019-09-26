@@ -103,11 +103,13 @@ def video_background(url, alpha):
     length = pa.length
 
     _, img = cap.read()
+    # img = img.astype('uint8') #### NEW LINE
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     average_img = np.float32(img)
 
     while cap.isOpened():
         ret, img = cap.read()
+        # img = img.astype('uint8') #### NEW LINE
         if ret == True:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -257,6 +259,7 @@ def motion_tracking(url, model, classes, video_name, file_name, skip_frame, min_
     while cap.isOpened() and frame_count < np.floor(end_sec * FPS):
 
         ret, frame = cap.read()
+        # frame = frame.astype('uint8') #### NEW LINE
 
         if frame_count < np.floor(start_sec * FPS):
             frame_count += 1

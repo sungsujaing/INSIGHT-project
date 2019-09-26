@@ -187,7 +187,7 @@ def KYM_images():
 # start the server with the 'run()' method
 if __name__ == "__main__":
 
-  app.run(debug=True)  # will run locally http://127.0.0.1:5000/
+  # will run locally http://127.0.0.1:5000/
+  app.run(debug=True)
 
-# <!-- <img src="{{ url_for('static', filename = contour_img_name) }}" width=450 height=350>
-#                   <img src="{{ url_for('static', filename = trajectory_img_name') }}" width=450 height=350> -->
+  # app.run(host="0.0.0.0", debug=True)
