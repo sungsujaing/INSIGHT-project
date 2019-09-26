@@ -10,9 +10,6 @@ import os
 saving_video_file_name = 'original_video_clip'
 video_name = 'processed_video_clip'
 file_name = 'processed_file'
-contour_img_name = 'img_contour'
-trajectory_img_name = 'img_traj'
-background = None
 
 # Create the application object
 app = Flask(__name__)
@@ -64,7 +61,7 @@ def KYM_results():
 
     # K.clear_session()
 
-    global background
+    # global background
     sorted_archive, background, title, initial_time, length = hf.motion_tracking(url,                  # working fine!
                                                                                  model,
                                                                                  classes,
@@ -125,6 +122,8 @@ def to_datetime(time):
 
 @app.route('/images', methods=["GET", "POST"])  # to display.html
 def KYM_images():
+  contour_img_name = 'img_contour_map'
+  trajectory_img_name = 'img_traj_map'
 
   input_start_filter = request.args.get('input_start_filter')
   input_end_filter = request.args.get('input_end_filter')
@@ -134,6 +133,7 @@ def KYM_images():
 
   sorted_archive = pickle.load(
       open(file_name + '.pkl', 'rb'))
+  background = pickle.load(open('background.pkl', 'rb'))
 
   if input_end_filter == '':
     sliced_archive = hf.time_slice(
@@ -142,13 +142,16 @@ def KYM_images():
     if sliced_archive == 'wrong method!':
       my_form_result = 'error'
       result = sliced_archive
+    elif not sliced_archive:
+      my_form_result = 'error'
+      result = 'no record exist!'
     else:
-      my_form_result = 'filtered'
-      result = None
       hf.contour_draw(sliced_archive, background, img_name=contour_img_name, alpha=0.6,
                       n_levels=5, figsize=(10, 5))
       hf.tracjactory_draw(sliced_archive, background, img_name=trajectory_img_name, alpha=0.3,
                           markersize=20, lw=10, figsize=(10, 5))
+      my_form_result = 'filtered'
+      result = None
 
   else:
     input_end_filter = to_datetime(input_end_filter)
@@ -160,16 +163,19 @@ def KYM_images():
       sliced_archive = hf.time_slice(
           sorted_archive, dt_obj=[input_start_filter, input_end_filter], flag=input_flag)
 
-      if sliced_archive == 'wrong method!' or len(sliced_archive) == 0: ##########################################################
+      if sliced_archive == 'wrong method!':
         my_form_result = 'error'
         result = sliced_archive
+      elif not sliced_archive:
+        my_form_result = 'error'
+        result = 'no record exist!'
       else:
-        my_form_result = 'filtered'
-        result = None
         hf.contour_draw(sliced_archive, background, img_name=contour_img_name, alpha=0.6,
                         n_levels=5, figsize=(10, 5))
         hf.tracjactory_draw(sliced_archive, background, img_name=trajectory_img_name, alpha=0.3,
                             markersize=20, lw=10, figsize=(10, 5))
+        my_form_result = 'filtered'
+        result = None
 
   return render_template("display.html",
                          result=result,

@@ -126,14 +126,15 @@
                 {% if my_form_result=='error' %}
                 <div class="row mt-4 justify-content-center">
                   <h1 class="text-center text-uppercase" style="color:#fc0314">{{result}}</h1>
-                  <!-- <h4 class="text-danger text-center text-uppercase">{{input_start_filter}}</h4> -->
                 </div>
                 {% elif my_form_result=='filtered' %}
                 <div class="row mt-4 justify-content-center">
                   <h1 class="text-center text-uppercase" style="color:#fcba03">Image generated below!</h1>
-                  <!-- <h4 class="text-danger text-center text-uppercase">{{input_start_filter}}</h4> -->
                 </div>
+
                 {% endif %}
+
+
 
             </div>
 
@@ -147,16 +148,20 @@
 
 
 
-  <!-- Footer -->
+  <!-- Footer-->
   <footer class="bg-light py-5">
     <div class="container">
+
       {% if my_form_result=='filtered' %}
       <div class="row mt-4 justify-content-center">
-            <img src="{{'static/'+trajectory_img_name}}" style="width:100%">
-            <img src="{{'static/'+contour_img_name}}" style="width:100%">
+        <h1> Trajectory map </h1>
+        <img src="{{'static/'+trajectory_img_name}}" style="width:100%">
+        <h1> Contour map </h1>
+        <img src="{{'static/'+contour_img_name}}" style="width:100%">
       </div>
       {% endif %}
-      <div class="small text-center text-muted">Copyright &copy; 2019 - Start Bootstrap</div>
+
+      <div class="small text-center text-muted">Copyright &copy; 2019 - Sean Choi</div>
     </div>
   </footer>
 

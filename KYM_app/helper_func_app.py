@@ -401,6 +401,7 @@ def motion_tracking(url, model, classes, video_name, file_name, skip_frame, min_
     sorted_archive = collections.OrderedDict(sorted_archive)
 
     pickle.dump(sorted_archive, open(file_name + '.pkl', 'wb'))
+    pickle.dump(background, open('background' + '.pkl', 'wb'))
 
     print('processed video saved as: "{}.avi"'.format(video_name))
     print('file saved as: "{}.txt"'.format(file_name))
