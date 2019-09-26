@@ -65,7 +65,7 @@
           <p class="text-white-75 font-weight-light mb-5">Understand how your customers shop bluhbluh</p>
           <hr class="divider my-4">
             <div class="col-sm m-3 text-center">
-              <form action="/output" method="GET" id="user_input">
+              <form action="/results" method="GET" id="user_input">
                     <input class="form-control" type="url" id="input_URL" name='input_URL' placeholder="Insert youtube URL">
                     <input class="form-control" type="number" id="input_start" name='input_start' placeholder="start (sec) || default: 0">
                     <input class="form-control" type="number" id="input_end" name='input_end' placeholder="end (sec) || default: end">
@@ -90,15 +90,15 @@
                  <ul class="list-group">
                  <h4 class="text-center">
                  <li class="list-group-item d-flex justify-content-between align-items-center active">
-                    <b>{{my_input}}</b>
-                    <span class="badge badge-primary badge-pill">{{my_number}} followers</span>
+                    <b>{{video_name}}</b>
+                    <span class="badge badge-primary badge-pill">{{video_name}} followers</span>
                   </li>
                 </h4>
                 </ul>
               </div>
-              <div class="col">
-              <img src="{{ url_for('static', filename = my_img_name) }}" width=500 height=416>
-              </div>
+              <!-- <div class="col">
+              <img src="{{ url_for('static', filename = contour_img_name) }}" width=500 height=416>
+              </div> -->
             </div>
 
             {% endif %}

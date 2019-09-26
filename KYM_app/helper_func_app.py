@@ -1,3 +1,4 @@
+import os
 import datetime as dt
 import time as tm
 import collections
@@ -98,6 +99,8 @@ def video_background(url, alpha):
     vid_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     vid_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     FPS = cap.get(cv2.CAP_PROP_FPS)
+    title = pa.title
+    length = pa.length
 
     _, img = cap.read()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -113,14 +116,14 @@ def video_background(url, alpha):
         else:
             break
     cap.release()
-    print('title: {}'.format(pa.title))
+    print('title: {}'.format(title))
     print('duration: {}'.format(pa.duration))
     print('frame #: {}'.format(frame_numbers))
     print('original FPS: {:.2f}'.format(FPS))
     print('width: {}'.format(vid_width))
     print('height: {}'.format(vid_height))
 
-    return background, vid_height, vid_width, FPS
+    return background, vid_height, vid_width, FPS, title, length
 
 
 def save_frame_range_video(url, saving_video_file_name, start_sec=0, end_sec=None):
@@ -148,7 +151,8 @@ def save_frame_range_video(url, saving_video_file_name, start_sec=0, end_sec=Non
         print('cannot read a video')
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(saving_video_file_name + '.avi',
+
+    out = cv2.VideoWriter(os.path.join('static', saving_video_file_name + '.avi'),
                           fourcc, FPS, (vid_width, vid_height))
 
     if end_sec is None:
@@ -219,9 +223,10 @@ def motion_tracking(url, model, classes, video_name, file_name, skip_frame, min_
     sorted_archive: dictionary of the full motion history sorted by the created timestamp
     background: background image with moving objects filtered out
     '''
-    initial_time = dt.datetime.fromtimestamp(tm.time())
+    initial_time = dt.datetime.fromtimestamp(tm.time()).replace(microsecond=0)
 
-    background, vid_height, vid_width, FPS = video_background(url, alpha=0.005)
+    background, vid_height, vid_width, FPS, title, length = video_background(
+        url, alpha=0.005)
     height_fix_factor = vid_height / 512
     width_fix_factor = vid_width / 512
     label_to_track = 'person'
@@ -243,7 +248,7 @@ def motion_tracking(url, model, classes, video_name, file_name, skip_frame, min_
     customer_idx = 1  # customer id
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(video_name + '.avi', fourcc,
+    out = cv2.VideoWriter(os.path.join('static', video_name + '.avi'), fourcc,
                           FPS, (vid_width, vid_height))
 
     if end_sec is None:
@@ -400,7 +405,7 @@ def motion_tracking(url, model, classes, video_name, file_name, skip_frame, min_
     print('processed video saved as: "{}.avi"'.format(video_name))
     print('file saved as: "{}.txt"'.format(file_name))
 
-    return sorted_archive, background
+    return sorted_archive, background, title, initial_time, length
 
 
 def time_slice(full_dict, dt_obj=None, flag=None):
@@ -415,47 +420,51 @@ def time_slice(full_dict, dt_obj=None, flag=None):
     sliced_archive: sliced dictionary of the motion history
     '''
     sliced_archive = {}
-    if dt_obj is None or flag is None:
-        return print('Please define your params!')
+    # if dt_obj is None or flag is None:
+    #     result = 'Please define your params!'
+    #     return print('Please define your params!')
 
-    if len(dt_obj) == 1:
+    if dt_obj[-1] == '':
         if flag == 'after':
-            for k, v in sorted_archive.items():
+            for k, v in full_dict.items():
                 if v[0] > dt_obj[0]:
-                    sliced_archive[k] = sorted_archive[k]
-            return sliced_motion
+                    sliced_archive[k] = full_dict[k]
+            return sliced_archive
 
         if flag == 'before':
-            for k, v in sorted_archive.items():
+            for k, v in full_dict.items():
                 if v[0] < dt_obj[0]:
-                    sliced_archive[k] = sorted_archive[k]
+                    sliced_archive[k] = full_dict[k]
             return sliced_archive
         else:
-            return print('wrong flag!')
+            sliced_archive = 'wrong method!'
+            return sliced_archive
 
-    if len(dt_obj) == 2:
+    else:
         if flag == 'in':
-            for k, v in sorted_archive.items():
+            for k, v in full_dict.items():
                 if v[0] > dt_obj[0] and v[0] < dt_obj[1]:
-                    sliced_archive[k] = sorted_archive[k]
+                    sliced_archive[k] = full_dict[k]
+
             return sliced_archive
 
         if flag == 'out':
-            for k, v in sorted_archive.items():
+            for k, v in full_dict.items():
                 if v[0] < dt_obj[0] or v[0] > dt_obj[1]:
-                    sliced_archive[k] = sorted_archive[k]
+                    sliced_archive[k] = full_dict[k]
+
             return sliced_archive
         else:
-            return print('wrong flag!')
-    else:
-        return print('the maximum number of dt_obj is two!')
+            sliced_archive = 'wrong method!'
+            return sliced_archive
 
 
-def contour_draw(dict_input, background, alpha=0.6, n_levels=5, figsize=(20, 10)):
+def contour_draw(dict_input, background, img_name, alpha=0.6, n_levels=5, figsize=(20, 10)):
     '''
     --input--
     dict_input: dictionary of the motion history,
     background: background image with moving objects filtered out,
+    img_name = saving file name of the contour image,
     alpha: alpha value of the background image [0,1],
     n_levels: number of contour lines,
     figsize: figure size
@@ -472,14 +481,15 @@ def contour_draw(dict_input, background, alpha=0.6, n_levels=5, figsize=(20, 10)
     plt.imshow(background, alpha=alpha)
     sns.kdeplot(xx, yy, ax=ax, n_levels=n_levels)
     plt.axis('off')
-    fig.savefig('contour.png')
+    fig.savefig(os.path.join('static', img_name + '.png'))
 
 
-def tracjactory_draw(dict_input, background, alpha=0.3, markersize=20, lw=10, figsize=(15, 8)):
+def tracjactory_draw(dict_input, background, img_name, alpha=0.3, markersize=20, lw=10, figsize=(15, 8)):
     '''
     --input--
     dict_input: dictionary of the motion history,
     background: background image with moving objects filtered out,
+    img_name = saving file name of the trajectory image
     alpha: alpha value of the marker [0,1],
     markersize: size of the markers,
     lw: line width between the data markers,
@@ -499,4 +509,4 @@ def tracjactory_draw(dict_input, background, alpha=0.3, markersize=20, lw=10, fi
         ax.plot(x, y, marker='o', c=color_by_index_norm(key),
                 alpha=alpha, markersize=markersize, lw=lw)
     plt.axis('off')
-    plt.savefig('trajectory.png')
+    plt.savefig(os.path.join('static', img_name + '.png'))

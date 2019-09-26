@@ -1,5 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
+import matplotlib
+matplotlib.use('Agg')
 import helper_func_app as hf
+from keras import backend as K
+import datetime as dt
+import pickle
+import os
+
+saving_video_file_name = 'original_video_clip'
+video_name = 'processed_video_clip'
+file_name = 'processed_file'
+contour_img_name = 'img_contour'
+trajectory_img_name = 'img_traj'
+background = None
 
 # Create the application object
 app = Flask(__name__)
@@ -11,8 +24,9 @@ def home_page():
   return render_template('index.html')
 
 
-@app.route('/output')
-def KYM_output():
+@app.route('/results')
+def KYM_results():
+
   #
   # Pull input
   input_URL = request.args.get('input_URL')
@@ -44,47 +58,130 @@ def KYM_output():
         weights_path, classes_list, (img_height, img_width))
 
     url = input_URL
-    saving_video_file_name = 'original_video_clip'
-    video_name = 'processed_video_clip'
-    file_name = 'processed_file'
 
     hf.save_frame_range_video(
         url, saving_video_file_name, start, end)  # working fine!
-    sorted_archive, background = hf.motion_tracking(url,                  # working fine!
-                                                    model,
-                                                    classes,
-                                                    video_name=video_name,
-                                                    file_name=file_name,
-                                                    skip_frame=10,
-                                                    min_dist_thresh=35,
-                                                    removing_thresh=10,
-                                                    confi_thresh=0.1,
-                                                    start_sec=start,
-                                                    end_sec=end)
 
-    # sorted_archive = pickle.load(open('file_name' + '.pkl', 'rb'))
+    # K.clear_session()
 
-    # tm_1 = dt.datetime(2019, 9, 24, 9, 53, 44)
-    # tm_2 = dt.datetime(2019, 9, 24, 9, 53, 49)
+    global background
+    sorted_archive, background, title, initial_time, length = hf.motion_tracking(url,                  # working fine!
+                                                                                 model,
+                                                                                 classes,
+                                                                                 video_name=video_name,
+                                                                                 file_name=file_name,
+                                                                                 skip_frame=10,
+                                                                                 min_dist_thresh=35,
+                                                                                 removing_thresh=10,
+                                                                                 confi_thresh=0.1,
+                                                                                 start_sec=start,
+                                                                                 end_sec=end)
 
-    # sliced_archive = hf.time_slice(sorted_archive, dt_obj=[tm_1, tm_2], flag='in')
+    # initial_time = (initial_time)
+    end_time = initial_time + dt.timedelta(seconds=length)
+    duration = str(dt.timedelta(seconds=length))
 
-    hf.contour_draw(sorted_archive, background, alpha=0.6,
-                    n_levels=5, figsize=(10, 5))
-    hf.tracjactory_draw(sorted_archive, background, alpha=0.3,
-                        markersize=20, lw=10, figsize=(10, 5))
+    clip_duration = end - start
+    clip_start = initial_time + dt.timedelta(seconds=start)
+    clip_end = initial_time + dt.timedelta(seconds=end)
 
-    some_output = 3
-    some_number = 2
-    # some_image = "gifpy.gif"
+    K.clear_session()
+
+    # title = 'title sample'
+    # initial_time = 22
+    # end_time = 33
+    # duration = 11
+
     return render_template("results.html",
-                           my_input=type(end),
-                           my_output=input_URL,
-                           my_number=end,
-                           my_img_name=some_output,
+                           saving_video_file_name=saving_video_file_name,
+                           video_title=title,
+                           video_name=video_name,
+                           file_name=file_name,
+                           initial_time=initial_time,
+                           end_time=end_time,
+                           duration=duration,
+                           clip_start_time=clip_start,
+                           clip_end_time=clip_end,
+                           clip_duration=clip_duration,
                            my_form_result="NotEmpty")
+
+
+@app.route('/display', methods=["GET", "POST"])  # to display.html
+def KYM_display():
+  return render_template("display.html")
+  # initial_time=initial_time)
+
+
+def to_datetime(time):
+  month = int(time.split()[0].split('/')[0])
+  day = int(time.split()[0].split('/')[1])
+  year = int(time.split()[0].split('/')[2])
+  hour = int(time.split()[1].split(':')[0])
+  minute = int(time.split()[1].split(':')[1])
+  if time.split()[-1] == 'PM':
+    hour += 12
+  return dt.datetime(year, month, day, hour, minute)
+
+
+@app.route('/images', methods=["GET", "POST"])  # to display.html
+def KYM_images():
+
+  input_start_filter = request.args.get('input_start_filter')
+  input_end_filter = request.args.get('input_end_filter')
+  input_flag = request.args.get('input_flag')
+
+  input_start_filter = to_datetime(input_start_filter)
+
+  sorted_archive = pickle.load(
+      open(file_name + '.pkl', 'rb'))
+
+  if input_end_filter == '':
+    sliced_archive = hf.time_slice(
+        sorted_archive, dt_obj=[input_start_filter, input_end_filter], flag=input_flag)
+
+    if sliced_archive == 'wrong method!':
+      my_form_result = 'error'
+      result = sliced_archive
+    else:
+      my_form_result = 'filtered'
+      result = None
+      hf.contour_draw(sliced_archive, background, img_name=contour_img_name, alpha=0.6,
+                      n_levels=5, figsize=(10, 5))
+      hf.tracjactory_draw(sliced_archive, background, img_name=trajectory_img_name, alpha=0.3,
+                          markersize=20, lw=10, figsize=(10, 5))
+
+  else:
+    input_end_filter = to_datetime(input_end_filter)
+
+    if input_start_filter >= input_end_filter:
+      my_form_result = 'error'
+      result = 'start time must be prior to the end time'
+    else:
+      sliced_archive = hf.time_slice(
+          sorted_archive, dt_obj=[input_start_filter, input_end_filter], flag=input_flag)
+
+      if sliced_archive == 'wrong method!' or len(sliced_archive) == 0: ##########################################################
+        my_form_result = 'error'
+        result = sliced_archive
+      else:
+        my_form_result = 'filtered'
+        result = None
+        hf.contour_draw(sliced_archive, background, img_name=contour_img_name, alpha=0.6,
+                        n_levels=5, figsize=(10, 5))
+        hf.tracjactory_draw(sliced_archive, background, img_name=trajectory_img_name, alpha=0.3,
+                            markersize=20, lw=10, figsize=(10, 5))
+
+  return render_template("display.html",
+                         result=result,
+                         contour_img_name=contour_img_name + '.png',
+                         trajectory_img_name=trajectory_img_name + '.png',
+                         my_form_result=my_form_result)
 
 
 # start the server with the 'run()' method
 if __name__ == "__main__":
+
   app.run(debug=True)  # will run locally http://127.0.0.1:5000/
+
+# <!-- <img src="{{ url_for('static', filename = contour_img_name) }}" width=450 height=350>
+#                   <img src="{{ url_for('static', filename = trajectory_img_name') }}" width=450 height=350> -->
