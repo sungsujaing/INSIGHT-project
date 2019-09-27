@@ -53,22 +53,6 @@
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav ml-auto my-2 my-lg-0">
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#about">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#services">Services</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#portfolio">Portfolio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
-          </li>
-        </ul>
-      </div>
     </div>
   </nav>
 
@@ -78,13 +62,7 @@
       <div class="row h-100 align-items-center justify-content-center text-center">
         <div class="col-lg-8 align-self-baseline">
 
-
-            {% if my_form_result=='Empty' %}
-            <div class="row mt-4 justify-content-center">
-                  <h4 class="text-danger text-center text-uppercase">Please type the URL of a video!</h4>
-            </div>
-
-            {% elif my_form_result=='NotEmpty' %}
+            {% if my_form_result=='processed' %}
 
             <div class="row mt-4 justify-content-center">
                   <h1 class="text-light text-center text-uppercase">Processed!</h1>
@@ -92,26 +70,19 @@
 
             <div class="row p-1 m-1 justify-content-center">
                  <li class="list-group-item d-flex justify-content-between align-items-center active">
-                    <b>[TITLE] {{video_title}}</b>
-                 </li>
-            </div>
-            <!-- <div class="row p-1 m-1 justify-content-center">
-                 <li class="list-group-item d-flex justify-content-between align-items-center active">
-                    <b>[Original] {{initial_time}} - {{end_time}}<br>duration: {{duration}}</b>
+                    <b>Uploaded video has been deleted successfully after processing!</b>
                  </li>
             </div>
             <div class="row p-1 m-1 justify-content-center">
                  <li class="list-group-item d-flex justify-content-between align-items-center active">
-                    <b>[Clipped] {{clip_start_time}} - {{clip_end_time}}<br>duration: {{clip_duration}}</b>
+                    <b>[Original] {{initial_time}} |-| {{end_time}}<br>duration: {{duration}}</b>
                  </li>
-            </div> -->
-
-          <!--   <div class="crow align-items-center justify-content-center text-center">
-                <h4 class="text-white-75 font-weight-bold mb-5"><br>video begins @{{initial_time}}</h4>
-                <h4 class="text-white-75 font-weight-bold mb-5">video ends @{{end_time}}</h4>
-                <h4 class="text-white-75 font-weight-bold mb-5">duration: {{duration}}</h4>
-            </div> -->
-
+            </div>
+            <div class="row p-1 m-1 justify-content-center">
+                 <li class="list-group-item d-flex justify-content-between align-items-center active">
+                    <b>[Clipped] {{clip_start_time}} |-| {{clip_end_time}}<br>duration: {{clip_duration}} sec</b>
+                 </li>
+            </div>
 
             <hr class="divider my-5">
             <div class="row">

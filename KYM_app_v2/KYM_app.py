@@ -73,8 +73,9 @@ def KYM_results():
                                                                         start_sec=start,
                                                                         end_sec=end)
 
-  end_time = initial_time + dt.timedelta(seconds=length)
-  duration = str(dt.timedelta(seconds=length))
+  end_time = (initial_time + dt.timedelta(seconds=length)
+              ).replace(microsecond=0)
+  duration = str(dt.timedelta(seconds=length)).split('.')[0]
 
   clip_duration = end - start
   clip_start = initial_time + dt.timedelta(seconds=start)
@@ -89,7 +90,6 @@ def KYM_results():
 
   return render_template("results.html",
                          saving_video_file_name=saving_video_file_name,
-                         video_title="Uploaded video",
                          video_name=video_name,
                          file_name=file_name,
                          initial_time=initial_time,
@@ -98,7 +98,7 @@ def KYM_results():
                          clip_start_time=clip_start,
                          clip_end_time=clip_end,
                          clip_duration=clip_duration,
-                         my_form_result="NotEmpty")
+                         my_form_result="processed")
 
 
 @app.route('/display', methods=["GET", "POST"])  # to display.html
