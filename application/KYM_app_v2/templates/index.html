@@ -36,9 +36,11 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto my-2 my-lg-0">
+          {% if my_form_result=='uploaded' %}
           <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#about">About</a>
+            <a class="nav-link js-scroll-trigger" style="color:#f2ff00" href="#process">Process</a>
           </li>
+          {% endif %}
           <li class="nav-item">
             <a class="nav-link js-scroll-trigger" href="#services">Services</a>
           </li>
@@ -71,35 +73,35 @@
             <div class="row justify-content-center">
               <button type="submit" class="btn btn-primary btn-xl js-scroll-trigger" form="user_upload">Upload!</button>
             </div>
-
-        <!--     {% if my_form_result=='Empty' %}
-            <div class="row mt-4 justify-content-center">
-                  <h4 class="text-danger text-center text-uppercase">Please type the URL of a video!</h4>
-            </div>
-
-            {% endif %} -->
         </div>
       </div>
     </div>
   </header>
 
-  {% if my_form_result=='uploaded' %}
+  {% if my_form_result=='uploaded' and scroll %}
 
-  <!-- About Section -->
-  <section class="page-section bg-primary" id="about">
+  <script>
+    document.location.hash = '#' + '{{ scroll }}';
+  </script>
+
+  <!-- Process Section -->
+  <section class="page-section bg-primary" id="process">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
           <h2 class="text-white mt-0">Video uploaded!</h2>
           <hr class="divider light my-4">
-              <form action="/results" method="GET" id="user_input">
-                <input class="form-control" type="number" id="input_start" name='input_start' placeholder="start (sec) || default: 0">
-                <input class="form-control" type="number" id="input_end" name='input_end' placeholder="end (sec) || default: end">
-              </form>
-          <p class="text-white-50 mb-4">Clipped video will be processed by KnowYourMove</p>
-          <div class="row justify-content-center">
-            <button type="submit" class="btn btn-light btn-xl js-scroll-trigger" form="user_input">Process!</button>
-          </div>
+            <form action="/results" method="GET" id="user_input">
+              <input class="form-control" type="number" id="input_start" name='input_start' placeholder="start (sec) || default: 0">
+              <input class="form-control" type="number" id="input_end" name='input_end' placeholder="end (sec) || default: end">
+              <label class="control-label text-white"><br>When does the video start? (ex: 6/3/2019 6:30 AM)</label>
+              <input class="form-control" type="datetime-local" id="input_start_time" name="input_start_time" placeholder="ex: 6/3/2019 6:30 AM">
+            </form>
+            <p class="text-white-50 mb-4"><br>Uploaded video will be deleted after processing!<br></p>
+            <p class="text-white-50 mb-4">Clipped video will be processed by KnowYourMove</p>
+            <div class="row justify-content-center">
+              <button type="submit" class="btn btn-light btn-xl js-scroll-trigger" form="user_input">Process!</button>
+            </div>
         </div>
       </div>
     </div>
@@ -157,16 +159,6 @@
           <a class="portfolio-box" href="https://www.researchgate.net/profile/Sean_Choi6">ResearchGate
         </div>
       </div>
-     <!--  <div class="row">
-        <div class="col-lg-4 ml-auto text-center mb-5 mb-lg-0">
-          <i class="fas fa-phone fa-3x mb-3 text-muted"></i>
-          <div>+1 (202) 555-0149</div>
-        </div>
-        <div class="col-lg-4 mr-auto text-center">
-          <i class="fas fa-envelope fa-3x mb-3 text-muted"></i>
-          <a class="d-block" href="mailto:contact@yourwebsite.com">contact@yourwebsite.com</a>
-        </div>
-      </div> -->
     </div>
   </section>
 

@@ -1,12 +1,22 @@
-from flask import Flask, render_template, request, session
-import matplotlib
-matplotlib.use('Agg')
 import helper_func_app as hf
 from keras import backend as K
+from flask import Flask, render_template, request
 import datetime as dt
 import pickle
-import os
-import cv2
+import matplotlib
+matplotlib.use('Agg')
+
+
+def to_datetime(time):
+  month = int(time.split()[0].split('/')[0])
+  day = int(time.split()[0].split('/')[1])
+  year = int(time.split()[0].split('/')[2])
+  hour = int(time.split()[1].split(':')[0])
+  minute = int(time.split()[1].split(':')[1])
+  if time.split()[-1] == 'PM':
+    hour += 12
+  return dt.datetime(year, month, day, hour, minute)
+
 
 saving_video_file_name = 'original_video_clip'
 video_name = 'processed_video_clip'
@@ -27,14 +37,17 @@ def KYM_upload():
   input_video = request.files['input_video']
   input_video.save('static/uploaded.mp4')
   return render_template("index.html",
+                         scroll="process",
                          my_form_result="uploaded")
 
 
 @app.route('/results', methods=["GET", "POST"])
 def KYM_results():
-
   input_start = request.args.get('input_start')
   input_end = request.args.get('input_end')
+  input_start_time = request.args.get('input_start_time')
+
+  initial_time = to_datetime(input_start_time)
 
   if input_start == '':
     start = 0
@@ -61,17 +74,18 @@ def KYM_results():
       video_path, saving_video_file_name, start, end)
 
   # global background
-  sorted_archive, background, initial_time, length = hf.motion_tracking(video_path,
-                                                                        model,
-                                                                        classes,
-                                                                        video_name=video_name,
-                                                                        file_name=file_name,
-                                                                        skip_frame=10,
-                                                                        min_dist_thresh=35,
-                                                                        removing_thresh=10,
-                                                                        confi_thresh=0.1,
-                                                                        start_sec=start,
-                                                                        end_sec=end)
+  sorted_archive, background, length = hf.motion_tracking(video_path,
+                                                          initial_time,
+                                                          model,
+                                                          classes,
+                                                          video_name=video_name,
+                                                          file_name=file_name,
+                                                          skip_frame=10,
+                                                          min_dist_thresh=35,
+                                                          removing_thresh=10,
+                                                          confi_thresh=0.1,
+                                                          start_sec=start,
+                                                          end_sec=end)
 
   end_time = (initial_time + dt.timedelta(seconds=length)
               ).replace(microsecond=0)
@@ -82,11 +96,6 @@ def KYM_results():
   clip_end = initial_time + dt.timedelta(seconds=end)
 
   K.clear_session()
-
-  # title = 'title sample'
-  # initial_time = 22
-  # end_time = 33
-  # duration = 11
 
   return render_template("results.html",
                          saving_video_file_name=saving_video_file_name,
@@ -104,18 +113,6 @@ def KYM_results():
 @app.route('/display', methods=["GET", "POST"])  # to display.html
 def KYM_display():
   return render_template("display.html")
-  # initial_time=initial_time)
-
-
-def to_datetime(time):
-  month = int(time.split()[0].split('/')[0])
-  day = int(time.split()[0].split('/')[1])
-  year = int(time.split()[0].split('/')[2])
-  hour = int(time.split()[1].split(':')[0])
-  minute = int(time.split()[1].split(':')[1])
-  if time.split()[-1] == 'PM':
-    hour += 12
-  return dt.datetime(year, month, day, hour, minute)
 
 
 @app.route('/images', methods=["GET", "POST"])  # to display.html
@@ -186,6 +183,6 @@ def KYM_images():
 if __name__ == "__main__":
 
   # will run locally http://127.0.0.1:5000/
-  app.run(debug=True)
-
-  # app.run(host="0.0.0.0", debug=True)
+  # app.run(debug=True)
+  # will run on AWS elastic IP
+  app.run(host="0.0.0.0", debug=True)

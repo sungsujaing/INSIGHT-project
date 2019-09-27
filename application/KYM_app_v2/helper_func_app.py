@@ -1,23 +1,14 @@
 import os
 import datetime as dt
-import time as tm
 import collections
 import pickle
 import cv2
 import numpy as np
-import json
 import random
 import seaborn as sns
 from matplotlib import pyplot as plt
-import pafy
-import time
 import copy
 from scipy.spatial import distance
-import tensorflow as tf
-import keras
-from keras import backend as K
-from keras.models import load_model
-from keras.preprocessing import image
 from keras.optimizers import Adam
 from models.keras_ssd512 import ssd_512
 from keras_loss_function.keras_ssd_loss import SSDLoss
@@ -86,13 +77,15 @@ def filter_by_classes(results, classes, labels=None):
 def video_background(video_path, alpha):
     '''
     --input--
-    url: YouTube URL
+    video_path: path to the uploaded video,
     alpha: alpha value for moving average
     --output--
-    background image with moving objects filtered out
+    background image with moving objects filtered out,
+    vid_height: height of the input video,
+    vid_width: width of the input video,
+    FPS: frame per second of the input video,
+    length: total duration of the input video (sec)
     '''
-    # pa = pafy.new(url)
-    # video = pa.getbest(preftype='webm')
     cap = cv2.VideoCapture(video_path)
 
     frame_numbers = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -100,18 +93,14 @@ def video_background(video_path, alpha):
     vid_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     FPS = cap.get(cv2.CAP_PROP_FPS)
     length = frame_numbers / FPS
-    minutes = int(length / 60)
-    seconds = length % 60
 
     _, img = cap.read()
-    # img = img.astype('uint8') #### NEW LINE
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     average_img = np.float32(img)
 
     while cap.isOpened():
         ret, img = cap.read()
-        # img = img.astype('uint8') #### NEW LINE
-        if ret == True:
+        if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             cv2.accumulateWeighted(img, average_img, alpha)
@@ -119,11 +108,6 @@ def video_background(video_path, alpha):
         else:
             break
     cap.release()
-    print('duration: {}:{}'.format(minutes, seconds))
-    print('frame #: {}'.format(frame_numbers))
-    print('original FPS: {:.2f}'.format(FPS))
-    print('width: {}'.format(vid_width))
-    print('height: {}'.format(vid_height))
 
     return background, vid_height, vid_width, FPS, length
 
@@ -131,32 +115,27 @@ def video_background(video_path, alpha):
 def save_frame_range_video(video_path, saving_video_file_name, start_sec=0, end_sec=None):
     '''
     --input--
-    url: YouTube URL,
+    video_path: path to the uploaded video,
     saving_video_file_name: saving file name of the video clip,
     start_sec: start time of the video clip (in sec),
     end_sec: end time of the video clip (in sec); if not defined -- end of the video
     --output--
     saved video clip (.avi)
     '''
-    # print('video starts at {:.2f} sec'.format(start_sec))
-
     frame_count = 0
 
-    # pa = pafy.new(url)
-    # play = pa.getbest(preftype='webm')
     cap = cv2.VideoCapture(video_path)
     FPS = cap.get(cv2.CAP_PROP_FPS)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    duration = frame_count / FPS
+    frame_numbers = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    duration = frame_numbers / FPS
 
     vid_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     vid_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 
-    if (cap.isOpened() == False):
+    if cap.isOpened() is False:
         print('cannot read a video')
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-
     out = cv2.VideoWriter(os.path.join('static', saving_video_file_name + '.avi'),
                           fourcc, FPS, (vid_width, vid_height))
 
@@ -171,8 +150,6 @@ def save_frame_range_video(video_path, saving_video_file_name, start_sec=0, end_
         out.write(frame)
         frame_count += 1
 
-    # print('video ends at {:.2f} sec'.format(end_sec))
-    # print('clipped video saved as: "{}.avi"'.format(saving_video_file_name))
     cap.release()
     out.release()
 
@@ -210,10 +187,11 @@ def color_by_index_norm(idx):
     return color_palatte_norm[idx]
 
 
-def motion_tracking(video_path, model, classes, video_name, file_name, skip_frame, min_dist_thresh, removing_thresh, confi_thresh, start_sec=0, end_sec=None):
+def motion_tracking(video_path, initial_time, model, classes, video_name, file_name, skip_frame, min_dist_thresh, removing_thresh, confi_thresh, start_sec=0, end_sec=None):
     '''
     --input--
-    url: url of the video,
+    video_path: path to the uploaded video,
+    initial_time: beginning time of the video,
     model: SSD model,
     classes: dict(class:index),
     video_name: file name of the processed video,
@@ -225,11 +203,10 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
     start_sec: start of the video to be processed (seconds),
     end_sec: end of the video to be processed (seconds)
     --output--
-    sorted_archive: dictionary of the full motion history sorted by the created timestamp
-    background: background image with moving objects filtered out
+    sorted_archive: dictionary of the full motion history sorted by the created timestamp,
+    background: background image with moving objects filtered out,
+    length: total duration of the input video (sec)
     '''
-    initial_time = dt.datetime.fromtimestamp(tm.time()).replace(microsecond=0)
-
     background, vid_height, vid_width, FPS, length = video_background(
         video_path, alpha=0.005)
     height_fix_factor = vid_height / 512
@@ -240,11 +217,9 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
 
     print('processing starts at {:.2f} sec'.format(start_sec))
 
-    # pa = pafy.new(url)
-    # play = pa.getbest(preftype='webm')
     cap = cv2.VideoCapture(video_path)
 
-    if (cap.isOpened() == False):
+    if cap.isOpened() is False:
         print('cannot read a video')
 
     track_history = {}
@@ -257,18 +232,17 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
                           FPS, (vid_width, vid_height))
 
     if end_sec is None:
-        end_sec = pa.length
+        end_sec = length
 
     while cap.isOpened() and frame_count < np.floor(end_sec * FPS):
 
         ret, frame = cap.read()
-        # frame = frame.astype('uint8') #### NEW LINE
 
         if frame_count < np.floor(start_sec * FPS):
             frame_count += 1
             continue
 
-        if ret == True:
+        if ret:
 
             frame = np.asarray(frame)
             orig_frame = np.copy(frame)
@@ -294,7 +268,6 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
                         r[5] = ymax = int(r[5] * height_fix_factor)
                         centroid = (int(np.mean((xmin, xmax))),
                                     int(np.mean((ymin, ymax))))
-#                         current_centroids.append(centroid)
 
                         # add the list of positions
                         track_history[customer_idx] = [
@@ -317,7 +290,6 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
                         centroid = (int(np.mean((xmin, xmax))),
                                     int(np.mean((ymin, ymax))))
                         current_centroids.append(centroid)
-#                     print('for frame {}: {}'.format(frame_count,current_centroids))#######################################
 
                     track_history_temp = copy.deepcopy(track_history)
                     track_history_key_temp = copy.deepcopy(
@@ -357,10 +329,6 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
                                 track_history_temp[left_over][-1][-1])
 
                     track_history = track_history_temp  # update the history
-
-#                     print('for frame {} dict: {}'.format(frame_count,track_history))#######################################
-#                     print('moving tracker: {}'.format(moving_tracker))
-#                     print('\n')
 
                 # generate orig_frame based on track_history
                 for idx, loc in track_history.items():
@@ -412,7 +380,7 @@ def motion_tracking(video_path, model, classes, video_name, file_name, skip_fram
     print('processed video saved as: "{}.avi"'.format(video_name))
     print('file saved as: "{}.txt"'.format(file_name))
 
-    return sorted_archive, background, initial_time, length
+    return sorted_archive, background, length
 
 
 def time_slice(full_dict, dt_obj=None, flag=None):
@@ -427,9 +395,6 @@ def time_slice(full_dict, dt_obj=None, flag=None):
     sliced_archive: sliced dictionary of the motion history
     '''
     sliced_archive = {}
-    # if dt_obj is None or flag is None:
-    #     result = 'Please define your params!'
-    #     return print('Please define your params!')
 
     if dt_obj[-1] == '':
         if flag == 'after':
