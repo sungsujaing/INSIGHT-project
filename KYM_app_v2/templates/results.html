@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+</style>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Creative - Start Bootstrap Theme</title>
+
+  <!-- Font Awesome Icons -->
+  <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic' rel='stylesheet' type='text/css'>
+
+  <!-- Plugin CSS -->
+  <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+
+  <!-- Theme CSS - Includes Bootstrap -->
+  <link href="../static/css/creative.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#page-top">KNOW YOUR MOVE</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto my-2 my-lg-0">
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#services">Services</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#portfolio">Portfolio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Masthead -->
+  <header class="masthead">
+    <div class="container h-100">
+      <div class="row h-100 align-items-center justify-content-center text-center">
+        <div class="col-lg-8 align-self-baseline">
+
+
+            {% if my_form_result=='Empty' %}
+            <div class="row mt-4 justify-content-center">
+                  <h4 class="text-danger text-center text-uppercase">Please type the URL of a video!</h4>
+            </div>
+
+            {% elif my_form_result=='NotEmpty' %}
+
+            <div class="row mt-4 justify-content-center">
+                  <h1 class="text-light text-center text-uppercase">Processed!</h1>
+            </div>
+
+            <div class="row p-1 m-1 justify-content-center">
+                 <li class="list-group-item d-flex justify-content-between align-items-center active">
+                    <b>[TITLE] {{video_title}}</b>
+                 </li>
+            </div>
+            <!-- <div class="row p-1 m-1 justify-content-center">
+                 <li class="list-group-item d-flex justify-content-between align-items-center active">
+                    <b>[Original] {{initial_time}} - {{end_time}}<br>duration: {{duration}}</b>
+                 </li>
+            </div>
+            <div class="row p-1 m-1 justify-content-center">
+                 <li class="list-group-item d-flex justify-content-between align-items-center active">
+                    <b>[Clipped] {{clip_start_time}} - {{clip_end_time}}<br>duration: {{clip_duration}}</b>
+                 </li>
+            </div> -->
+
+          <!--   <div class="crow align-items-center justify-content-center text-center">
+                <h4 class="text-white-75 font-weight-bold mb-5"><br>video begins @{{initial_time}}</h4>
+                <h4 class="text-white-75 font-weight-bold mb-5">video ends @{{end_time}}</h4>
+                <h4 class="text-white-75 font-weight-bold mb-5">duration: {{duration}}</h4>
+            </div> -->
+
+
+            <hr class="divider my-5">
+            <div class="row">
+              <div class="column">
+              <a href="/static/original_video_clip.avi" download>
+                <button class="btn btn-primary btn-xl js-scroll-trigger"><i class="fa fa-download"></i> Cliped video</button>
+              </a>
+              </div>
+              <div class="column">
+              <a href="/static/processed_video_clip.avi" download>
+                <button class="btn btn-primary btn-xl js-scroll-trigger"><i class="fa fa-download"></i> Processed video</button>
+              </a>
+              </div>
+            </div>
+            <hr class="divider my-5">
+            <div class="row justify-content-center">
+              <form action="/display" method="POST" id="to_display">
+                <button type="submit" class="btn btn-light btn-xl js-scroll-trigger" form="to_display"'>Display options</button>
+              </form>
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+            {% endif %}
+
+
+
+  <!-- Footer -->
+  <footer class="bg-light py-5">
+    <div class="container">
+      <div class="small text-center text-muted">Copyright &copy; 2019 - Sean Choi</div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="../static/js/creative.min.js"></script>
+
+</body>
+
+</html>

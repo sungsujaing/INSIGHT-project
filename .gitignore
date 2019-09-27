@@ -9,4 +9,8 @@ KnowYourMove/*.avi
 KYM_app/VGG_VOC0712_SSD_512x512_iter_120000.h5
 KYM_app/*.avi
 KYM_app/static/*.avi
+KYM_app_v2/VGG_VOC0712_SSD_512x512_iter_120000.h5
+KYM_app_v2/*.avi
+KYM_app_v2/static/*.avi
+KYM_app_v2/static/*.mp4
 HD CCTV Camera video 3MP 4MP iProx CCTV HDCCTVCameras.net retail store.mp4
