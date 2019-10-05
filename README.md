@@ -1,14 +1,9 @@
-# Insight Proj
+# KNOWYOURMOVE
 
-For the next 2 weeks of the INSIGHT program, this project aims to build a model that tracks the time-series motion of customers at a store from a surveillance camera without breaching customer privacy. I believe this is going to be a useful analysis tool for most business owners to learn potential insights about their business (i.e. store plan, pricing, etc). 
+***KnowYourMove*** is a ComputerVision-based business intelligence tool that tracks the **motion** of individual customers from already-existing store surveillance camera systems. It analyzes the video and generates the information maps that can provide business owners with valuable insights to understand their customers better (in terms of their shopping paths and aggregated time spent in different areas). The model has been deployed as a web application [HERE](www.knowyourmove.store) where a user can upload a surveillance video to generate the reports. 
 
-To achieve this, I plan to combine two different models: 
+The information can be filtered by specific time windows (i.e. morning/afternoon or weekdays/weekends, etc). Such information is expected to provide time-specific customer traffics at a store so as to enable micro-optimization of business operation such as store plan and pricing strategy without breaching their privacy.
 
-* person detection with a bounding box (i.e. SDD)
-* bounding box tracking based on euclidian distance between bounding boxes or bounding box identification by one-shot-learning approach
-
-In the end, the motion information of different customers will be visualized into a 2D heatmap. Depending on the specific business requirement: it could be averaged on a daily or weekly-basis || it could be categorized into different time throughout a day (morning/afternoon/night) so that the business owners can learn to optimize the usage of their store spaces by rearranging the product locations or putting discounts of the unpopular products, etc.
-
-If extra time is allowed, a time-tracking feature will be added to identify the customers who need attention by tracking the lingering time of a customer at the same location.
-
-The final model will be demonstrated on the actual surveillance camera footage examples.
+The model is based on:
+* SSD (Single shot detector) model
+* Centroid tracking algorithm
