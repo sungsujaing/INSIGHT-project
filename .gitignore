@@ -8,9 +8,13 @@ KnowYourMove/*.avi
 
 archive-youtube_scrap/KYM_app/VGG_VOC0712_SSD_512x512_iter_120000.h5
 archive-youtube_scrap/KYM_app/*.avi
+archive-youtube_scrap/KYM_app/.ipynb_checkpoints
 archive-youtube_scrap/KYM_app/static/*.avi
 application/KYM_app_v2/VGG_VOC0712_SSD_512x512_iter_120000.h5
 application/KYM_app_v2/*.avi
+application/KYM_app_v2/.ipynb_checkpoints
 application/KYM_app_v2/static/*.avi
 application/KYM_app_v2/static/*.mp4
 HD CCTV Camera video 3MP 4MP iProx CCTV HDCCTVCameras.net retail store.mp4
+
+images for knowyourmove.pptx
