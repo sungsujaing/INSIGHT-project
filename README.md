@@ -56,7 +56,7 @@ While tested on rather a short video, it was clearly shown that different distri
 
 
 
-## Webapplication DEMO
+## Web application DEMO
 
 **NOTE**: The current web application is being hosted on ***AWS t2.micro***, setting limitations on uploadable video size and processing time. 
 
