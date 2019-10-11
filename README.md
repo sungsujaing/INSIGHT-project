@@ -14,6 +14,15 @@ Please run `pip install -r requirements.txt` on your virtual environment to inst
 * Full details of the Flask web deployment on AWS can be found [HERE](https://github.com/sungsujaing/INSIGHT-project/tree/master/application/KYM_app_v2).
 * For testing purposes, if a YouTube video needs to be downloaded, this notebook can be used, [HERE](https://github.com/sungsujaing/INSIGHT-project/blob/master/download_video.ipynb).
 
+## Repository folder description
+
+* ReadMe_Images
+* application - KnowYourMove that is currently hosted on AWS
+* archive-youtube_scrap - KnowYourMove that takes Youtube video link as an input
+* Motion_analyzer.ipynb - main tutorial notebook for KnowYourMove
+* download_video.ipynb - supplementary notebook to download Youtube videos
+* requirements.txt
+
 ## Model structure
 
 The model is based on:
@@ -44,3 +53,20 @@ While tested on rather a short video, it was clearly shown that different distri
 
 <p align="center">
 <img src="ReadMe_Images/summary_result.png" width=100%></p>
+
+
+
+## Webapplication DEMO
+
+**NOTE**: The current web application is being hosted on ***AWS t2.micro***, setting limitations on uploadable video size and processing time. 
+
+**NOTE**: This shows how the first 1 second of the video gets processed for demo purposes.
+
+<p align="center">
+<img src="ReadMe_Images/KnowYourMoveGIF.gif" width=100%></p>
+
+
+
+## Acknowledgements
+
+* SSD weights were downloaded from *pierluigiferrari*'s [repo](https://github.com/pierluigiferrari/ssd_keras).

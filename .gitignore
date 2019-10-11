@@ -5,6 +5,7 @@ Demo
 
 KnowYourMove/VGG_VOC0712_SSD_512x512_iter_120000.h5
 KnowYourMove/*.avi
+KnowYourMove
 
 archive-youtube_scrap/KYM_app/VGG_VOC0712_SSD_512x512_iter_120000.h5
 archive-youtube_scrap/KYM_app/*.avi
